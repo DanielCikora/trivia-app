@@ -40,78 +40,92 @@ const downloadCSV = (data: TriviaQuestion[]) => {
 
 const Trivia = () => {
   const [questions, setQuestions] = useState<TriviaQuestion[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get<TriviaApiResponse>(API_URL)
       .then((response) => {
         setQuestions(response.data.results);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching trivia:", error);
+        setIsLoading(false);
       });
   }, []);
 
   const handlePrintToConsole = () => {
     console.log(questions);
   };
+
   return (
     <section className='trivia'>
       <div className='trivia-content'>
         <h1 className='text-2xl font-bold mb-4 text-center'>
           Trivia Questions
         </h1>
-        <table className='border border-solid rounded-lg shadow-lg'>
-          <thead>
-            <tr className='border-b-2 border-solid border-black'>
-              <th className='px-4 py-2 border-b text-left'>Category</th>
-              <th className='px-4 py-2 border-b text-left'>Difficulty</th>
-              <th className='px-4 py-2 border-b text-left'>Question</th>
-              <th className='px-4 py-2 border-b text-left'>Correct Answer</th>
-              <th className='px-4 py-2 border-b text-left'>
-                Incorrect Answers
-              </th>
-            </tr>
-          </thead>
-          <tbody className='border border-solid border-black'>
-            {questions.map((q, index) => (
-              <tr key={index} className='hover:bg-gray-100'>
-                <td className='px-4 py-2 border-b'>{q.category}</td>
-                <td className='px-4 py-2 border-b'>{q.difficulty}</td>
-                <td className='px-4 py-2 border-b'>{q.question}</td>
-                <td className='px-4 py-2 border-b'>{q.correct_answer}</td>
-                <td className='px-4 py-2 border-b'>
-                  {q.incorrect_answers.join(", ")}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className='mt-10 flex justify-center gap-4 '>
-          <button
-            onClick={() => downloadJSON(questions)}
-            className='cursor-pointer border border-solid border-blue-500 text-blue-500 hover:text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none'
-          >
-            Download JSON
-          </button>
+        {isLoading ? (
+          <div className='flex justify-center items-center h-screen'>
+            <div className='border-t-4 border-blue-500 border-solid rounded-full w-16 h-16 animate-spin'></div>
+          </div>
+        ) : (
+          <>
+            <table className='border border-solid rounded-lg shadow-lg'>
+              <thead>
+                <tr className='border-b-2 border-solid border-black'>
+                  <th className='px-4 py-2 border-b text-left'>Category</th>
+                  <th className='px-4 py-2 border-b text-left'>Difficulty</th>
+                  <th className='px-4 py-2 border-b text-left'>Question</th>
+                  <th className='px-4 py-2 border-b text-left'>
+                    Correct Answer
+                  </th>
+                  <th className='px-4 py-2 border-b text-left'>
+                    Incorrect Answers
+                  </th>
+                </tr>
+              </thead>
+              <tbody className='border border-solid border-black'>
+                {questions.map((q, index) => (
+                  <tr key={index} className='hover:bg-gray-100'>
+                    <td className='px-4 py-2 border-b'>{q.category}</td>
+                    <td className='px-4 py-2 border-b'>{q.difficulty}</td>
+                    <td className='px-4 py-2 border-b'>{q.question}</td>
+                    <td className='px-4 py-2 border-b'>{q.correct_answer}</td>
+                    <td className='px-4 py-2 border-b'>
+                      {q.incorrect_answers.join(", ")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className='mt-10 flex justify-center gap-4'>
+              <button
+                onClick={() => downloadJSON(questions)}
+                className='cursor-pointer border border-solid border-blue-500 text-blue-500 hover:text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none'
+              >
+                Download JSON
+              </button>
 
-          <button
-            onClick={() => downloadCSV(questions)}
-            className='cursor-pointer border border-solid border-green-500 text-green-500 hover:text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600 focus:outline-none'
-          >
-            Download CSV
-          </button>
+              <button
+                onClick={() => downloadCSV(questions)}
+                className='cursor-pointer border border-solid border-green-500 text-green-500 hover:text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600 focus:outline-none'
+              >
+                Download CSV
+              </button>
 
-          <button
-            onClick={handlePrintToConsole}
-            className='cursor-pointer border border-solid border-gray-500 text-gray-500 hover:text-white py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 focus:outline-none'
-          >
-            Print to Console
-          </button>
-        </div>
+              <button
+                onClick={handlePrintToConsole}
+                className='cursor-pointer border border-solid border-gray-500 text-gray-500 hover:text-white py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 focus:outline-none'
+              >
+                Print to Console
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
 };
-
 export default Trivia;
